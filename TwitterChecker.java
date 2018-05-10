@@ -38,7 +38,7 @@ public class TwitterChecker extends Twittee{
         
         
         List<Status> status;
-        try {
+        /*try {
             status = twitter.getHomeTimeline();
         
         for(Status st : status)
@@ -64,6 +64,38 @@ public class TwitterChecker extends Twittee{
         wordSearch(tweetList,"must");
         wordCountSearch(tweetList,"must");*/
         System.out.println(searchTwitter("เรา"));
+        System.out.println(searchUser("Earth.bloo"));
+    }
+    public static String searchUser(String username){
+        ConfigurationBuilder cf = new ConfigurationBuilder();
+        
+        cf.setDebugEnabled(true)
+                .setOAuthConsumerKey("V7q5PueqyzXmvBLzdFOscuDQI")
+                .setOAuthConsumerSecret("d0Sh3w8cyDkn9bCj8dJtKGRRC0hgsg1DlgO1GzSMVNfRwqPewF")
+                .setOAuthAccessToken("1683286518-lLAFHtXfGqyq3qcREwWKDi6Z932YxwnR45pNDuN")
+                .setOAuthAccessTokenSecret("JW5wCTiuZIIOJ4hMoKFb7HeOXHd0fAKtbis3sxo1vT0ei");
+        
+        TwitterFactory tf = new TwitterFactory(cf.build());
+        twitter4j.Twitter twitter = tf.getInstance();
+        List<Status> status;
+        
+        String result = "";
+        int count = 0;
+        try {
+            status = twitter.getHomeTimeline();
+        
+        for(Status st : status)
+        {
+            if(st.getUser().getName().equals(username)){
+                count++;
+                result += st.getUser().getName()+"----"+st.getText()+"\n";
+            }
+        }
+        } catch (TwitterException ex) {
+            Logger.getLogger(TwitterChecker.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        result += "\n"+ username + " have retweet " + count + " times. \n";
+        return result;
     }
     
     public static String searchTwitter(String word){
@@ -106,7 +138,7 @@ public class TwitterChecker extends Twittee{
         } catch (TwitterException ex) {
             Logger.getLogger(TwitterChecker.class.getName()).log(Level.SEVERE, null, ex);
         }
-        result += "The word count of " + word + " = " + sum;
+        result += "\nThe word count of " + word + " = " + sum +".\n";
         return result;
     }
     
