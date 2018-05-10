@@ -25,7 +25,7 @@ import twitter4j.conf.ConfigurationBuilder;
 public class TwitterChecker extends Twittee{
     public static void main(String[] mossodmak){
         
-        ConfigurationBuilder cf = new ConfigurationBuilder();
+        /*ConfigurationBuilder cf = new ConfigurationBuilder();
         
         cf.setDebugEnabled(true)
                 .setOAuthConsumerKey("V7q5PueqyzXmvBLzdFOscuDQI")
@@ -43,7 +43,7 @@ public class TwitterChecker extends Twittee{
         
         for(Status st : status)
         {
-            System.out.println(st.getUser().getName()+"------"+st.getText());
+            System.out.println(st.getUserMentionEntities()+"------"+st.getUser().getName()+"------"+st.getText());
         }
         } catch (TwitterException ex) {
             Logger.getLogger(TwitterChecker.class.getName()).log(Level.SEVERE, null, ex);
@@ -62,8 +62,54 @@ public class TwitterChecker extends Twittee{
         }catch (IOException e) {}
         //wordPrint(tweetList);
         wordSearch(tweetList,"must");
-        wordCountSearch(tweetList,"must");
+        wordCountSearch(tweetList,"must");*/
+        System.out.println(searchTwitter("เรา"));
     }
+    
+    public static String searchTwitter(String word){
+       
+        ConfigurationBuilder cf = new ConfigurationBuilder();
+        
+        cf.setDebugEnabled(true)
+                .setOAuthConsumerKey("V7q5PueqyzXmvBLzdFOscuDQI")
+                .setOAuthConsumerSecret("d0Sh3w8cyDkn9bCj8dJtKGRRC0hgsg1DlgO1GzSMVNfRwqPewF")
+                .setOAuthAccessToken("1683286518-lLAFHtXfGqyq3qcREwWKDi6Z932YxwnR45pNDuN")
+                .setOAuthAccessTokenSecret("JW5wCTiuZIIOJ4hMoKFb7HeOXHd0fAKtbis3sxo1vT0ei");
+        
+        TwitterFactory tf = new TwitterFactory(cf.build());
+        twitter4j.Twitter twitter = tf.getInstance();
+        List<Status> status;
+        
+        String result = "";
+        int sum = 0; 
+        int cnt = 0;
+        try {
+            status = twitter.getHomeTimeline();
+        
+        for(Status st : status)
+        {
+            String line = st.getText();
+            for(int i = 0; i <= line.length()-word.length(); i++){
+                
+                if(line.substring(i,i+word.length()).equals(word)){
+                    cnt++;
+                }
+                
+            }
+            if(cnt >= 1){
+                    result += st.getUser().getName()+"----"+st.getText()+"\n";
+                    sum += cnt;
+                    cnt = 0;
+                }
+            //System.out.println("------"+st.getUser().getName()+"------"+st.getText());
+        }
+        } catch (TwitterException ex) {
+            Logger.getLogger(TwitterChecker.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        result += "The word count of " + word + " = " + sum;
+        return result;
+    }
+    
     public static String wordSearch(ArrayList<Tweet> list, String word){
         Iterator iter = list.iterator();
         int count = 0;
