@@ -1,8 +1,7 @@
+package twitter;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import twitter.TwitterChecker;
+import java.util.ArrayList;
+import java.util.Iterator;
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.Status;
@@ -40,6 +39,7 @@ public class Twitter4J extends javax.swing.JFrame {
 
         jScrollPane2 = new javax.swing.JScrollPane();
         userResult1 = new javax.swing.JTextArea();
+        jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         user = new javax.swing.JTextField();
@@ -58,6 +58,17 @@ public class Twitter4J extends javax.swing.JFrame {
         userResult1.setLineWrap(true);
         userResult1.setRows(5);
         jScrollPane2.setViewportView(userResult1);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -110,37 +121,32 @@ public class Twitter4J extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(user)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(userButton))
-                            .addComponent(jScrollPane3))
-                        .addContainerGap())
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(user)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(userButton))
+                    .addComponent(jScrollPane3)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 2, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(209, 209, 209))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(word, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(4, 4, 4)
-                                .addComponent(wordButton)
-                                .addContainerGap())))))
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(word, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(4, 4, 4)
+                        .addComponent(wordButton)))
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(207, 207, 207))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(user, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(userButton)
@@ -165,36 +171,45 @@ public class Twitter4J extends javax.swing.JFrame {
 
         //Config Setting
         
-        TwitterFactory tf = new TwitterFactory(cf.build());
-        twitter4j.Twitter twitter = tf.getInstance();
-        List<Status> status;
 
-        String result = "";
-        int count = 0;
-        int sum = 0;
+        Twitter twitter = new TwitterFactory(cf.build()).getInstance();
+        
+        ArrayList<Tweet> mos = new ArrayList<>();
+        int size = 100;
+        int count = 1;
+        String str = "";
+        String wd = "";
         try {
-            status = twitter.getHomeTimeline();
-
-            for (Status st : status) {
-                String line = st.getText();
-                for (int i = 0; i <= line.length() - word.getText().length(); i++) {
-
-                    if (line.substring(i, i + word.getText().length()).equals(word.getText())) {
-                        count++;
-                    }
-
-                }
-                if (count >= 1) {
-                    result += st.getUser().getName() + "----" + st.getText() + "\n";
-                    sum += count;
-                    count = 0;
+            wd = word.getText();
+            Query query = new Query(word.getText());
+            QueryResult result = twitter.search(query);
+            while (mos.size() < size && result.hasNext()) {
+                //query.setCount(100);
+                result = twitter.search(result.nextQuery());
+                for (Status status : result.getTweets()) {
+                    
+                    //System.out.println("number : " + count + " " + status.getUser().getScreenName() + ":" + status.getText());
+                    //mos.add(count + " " + status.getUser().getScreenName() + ":" + status.getText());
+                    mos.add(new Tweet(status.getUser().getScreenName(),status.getText()));
+                    count++;
+                    str += count + ") " + status.getUser().getScreenName() + ":" + status.getText()+ "\n";
+                    
                 }
             }
-        } catch (TwitterException ex) {
-            Logger.getLogger(TwitterChecker.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TwitterException e) {
+            //e.printStackTrace();
         }
-        result += "\nThe word count of " + word.getText() + " = " + sum + ".\n";
-        wordResult.setText(result);
+        if(count >= 100){
+            str += "There are " + count + " tweets about " + word.getText() + ".\n";
+        }
+        wordResult.setText(str);
+
+        /*Iterator<Tweet> it = mos.iterator();
+        while (it.hasNext()) {
+            Tweet temp = it.next();
+            str += temp.getUser() + " : " + temp.getTweet();
+        }
+        wordResult.setText("");*/
     }//GEN-LAST:event_wordButtonActionPerformed
 
     private void userActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userActionPerformed
@@ -202,48 +217,45 @@ public class Twitter4J extends javax.swing.JFrame {
     }//GEN-LAST:event_userActionPerformed
 
     private void userButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userButtonActionPerformed
-        /*ConfigurationBuilder cf = new ConfigurationBuilder();
-        
+        ConfigurationBuilder cf = new ConfigurationBuilder();
+
         //Config Setting
         
+
+        Twitter twitter = new TwitterFactory(cf.build()).getInstance();
         
-        TwitterFactory tf = new TwitterFactory(cf.build());
-        twitter4j.Twitter twitter = tf.getInstance();
-        List<Status> status;
-        
-        String result = "";
-        int count = 0;
+        ArrayList<Tweet> mos = new ArrayList<>();
+        int size = 100;
+        int count = 1;
+        String str = "";
+        String wd = "";
         try {
-            Query query = new Query("source:twitter4j yusukey");
-            QueryResult res = twitter.search(query);
-            status = twitter.getHomeTimeline();
-        
-            for (Status st : res.getTweets()) {
-                result += st.getUser().getName()+"----"+st.getText()+"\n");
+            wd = word.getText();
+            Query query = new Query(word.getText());
+            QueryResult result = twitter.search(query);
+            while (mos.size() < size && result.hasNext()) {
+                //query.setCount(100);
+                result = twitter.search(result.nextQuery());
+                for (Status status : result.getTweets()) {
+                    
+                    //System.out.println("number : " + count + " " + status.getUser().getScreenName() + ":" + status.getText());
+                    //mos.add(count + " " + status.getUser().getScreenName() + ":" + status.getText());
+                    mos.add(new Tweet(status.getUser().getScreenName(),status.getText()));
+                    count++;
+                    str += count + ") " + status.getUser().getScreenName() + "\n";
+                    
+                }
             }
-        /*for(Status st : status)
-        {
-            if(st.getUser().getName().equals(user.getText())){
-                count++;
-                result += st.getUser().getName()+"----"+st.getText()+"\n";
-            }
+        } catch (TwitterException e) {
+            //e.printStackTrace();
         }
-        } catch (TwitterException ex) {
-            Logger.getLogger(TwitterChecker.class.getName()).log(Level.SEVERE, null, ex);
+        if(count >= 100){
+            str += "There are " + count + " users about " + word.getText() + ".\n";
         }
-        result += "\n"+ user.getText() + " have retweet " + count + " times.\n";
-        userResult.setText(result);*/
-        try{
-        Twitter twitter = TwitterFactory.getSingleton();
-        Query query = new Query("source:twitter4j yusukey");
-        QueryResult result = twitter.search(query);
-        for (Status status : result.getTweets()) {
-            System.out.println("@" + status.getUser().getScreenName() + ":" + status.getText());
+        userResult.setText(str);
+  
     }//GEN-LAST:event_userButtonActionPerformed
-        }catch(TwitterException e){
-            
-        }
-    }
+
     private void mos(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mos
         // TODO add your handling code here:
     }//GEN-LAST:event_mos
@@ -287,6 +299,7 @@ public class Twitter4J extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
