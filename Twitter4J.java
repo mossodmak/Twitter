@@ -3,7 +3,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import twitter.TwitterChecker;
+import twitter4j.Query;
+import twitter4j.QueryResult;
 import twitter4j.Status;
+import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
@@ -13,7 +16,6 @@ import twitter4j.conf.ConfigurationBuilder;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author mos_s
@@ -160,58 +162,50 @@ public class Twitter4J extends javax.swing.JFrame {
 
     private void wordButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wordButtonActionPerformed
         ConfigurationBuilder cf = new ConfigurationBuilder();
-        
-        cf.setDebugEnabled(true)
-                .setOAuthConsumerKey("V7q5PueqyzXmvBLzdFOscuDQI")
-                .setOAuthConsumerSecret("d0Sh3w8cyDkn9bCj8dJtKGRRC0hgsg1DlgO1GzSMVNfRwqPewF")
-                .setOAuthAccessToken("1683286518-lLAFHtXfGqyq3qcREwWKDi6Z932YxwnR45pNDuN")
-                .setOAuthAccessTokenSecret("JW5wCTiuZIIOJ4hMoKFb7HeOXHd0fAKtbis3sxo1vT0ei");
+
+        //Config Setting
         
         TwitterFactory tf = new TwitterFactory(cf.build());
         twitter4j.Twitter twitter = tf.getInstance();
         List<Status> status;
-        
+
         String result = "";
         int count = 0;
         int sum = 0;
         try {
             status = twitter.getHomeTimeline();
-        
-        for(Status st : status)
-        {
-            String line = st.getText();
-            for(int i = 0; i <= line.length()-word.getText().length(); i++){
-                
-                if(line.substring(i,i+word.getText().length()).equals(word.getText())){
-                    count++;
+
+            for (Status st : status) {
+                String line = st.getText();
+                for (int i = 0; i <= line.length() - word.getText().length(); i++) {
+
+                    if (line.substring(i, i + word.getText().length()).equals(word.getText())) {
+                        count++;
+                    }
+
                 }
-                
-            }
-            if(count >= 1){
-                    result += st.getUser().getName()+ "----" +st.getText()+"\n";
+                if (count >= 1) {
+                    result += st.getUser().getName() + "----" + st.getText() + "\n";
                     sum += count;
                     count = 0;
                 }
-        }
+            }
         } catch (TwitterException ex) {
             Logger.getLogger(TwitterChecker.class.getName()).log(Level.SEVERE, null, ex);
         }
-        result += "\nThe word count of " + word.getText() + " = " + sum +".\n";         
+        result += "\nThe word count of " + word.getText() + " = " + sum + ".\n";
         wordResult.setText(result);
     }//GEN-LAST:event_wordButtonActionPerformed
 
     private void userActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userActionPerformed
-        
+
     }//GEN-LAST:event_userActionPerformed
 
     private void userButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userButtonActionPerformed
-        ConfigurationBuilder cf = new ConfigurationBuilder();
+        /*ConfigurationBuilder cf = new ConfigurationBuilder();
         
-        cf.setDebugEnabled(true)
-                .setOAuthConsumerKey("V7q5PueqyzXmvBLzdFOscuDQI")
-                .setOAuthConsumerSecret("d0Sh3w8cyDkn9bCj8dJtKGRRC0hgsg1DlgO1GzSMVNfRwqPewF")
-                .setOAuthAccessToken("1683286518-lLAFHtXfGqyq3qcREwWKDi6Z932YxwnR45pNDuN")
-                .setOAuthAccessTokenSecret("JW5wCTiuZIIOJ4hMoKFb7HeOXHd0fAKtbis3sxo1vT0ei");
+        //Config Setting
+        
         
         TwitterFactory tf = new TwitterFactory(cf.build());
         twitter4j.Twitter twitter = tf.getInstance();
@@ -220,9 +214,14 @@ public class Twitter4J extends javax.swing.JFrame {
         String result = "";
         int count = 0;
         try {
+            Query query = new Query("source:twitter4j yusukey");
+            QueryResult res = twitter.search(query);
             status = twitter.getHomeTimeline();
         
-        for(Status st : status)
+            for (Status st : res.getTweets()) {
+                result += st.getUser().getName()+"----"+st.getText()+"\n");
+            }
+        /*for(Status st : status)
         {
             if(st.getUser().getName().equals(user.getText())){
                 count++;
@@ -233,9 +232,18 @@ public class Twitter4J extends javax.swing.JFrame {
             Logger.getLogger(TwitterChecker.class.getName()).log(Level.SEVERE, null, ex);
         }
         result += "\n"+ user.getText() + " have retweet " + count + " times.\n";
-        userResult.setText(result);
+        userResult.setText(result);*/
+        try{
+        Twitter twitter = TwitterFactory.getSingleton();
+        Query query = new Query("source:twitter4j yusukey");
+        QueryResult result = twitter.search(query);
+        for (Status status : result.getTweets()) {
+            System.out.println("@" + status.getUser().getScreenName() + ":" + status.getText());
     }//GEN-LAST:event_userButtonActionPerformed
-
+        }catch(TwitterException e){
+            
+        }
+    }
     private void mos(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mos
         // TODO add your handling code here:
     }//GEN-LAST:event_mos

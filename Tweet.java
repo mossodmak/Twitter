@@ -13,7 +13,7 @@ import java.util.StringTokenizer;
  *
  * @author mos_s
  */
-public class Tweet {
+public class Tweet{
     // attributes
     private String twt; 
     private ArrayList<String> wordList = new ArrayList<String>(); 
